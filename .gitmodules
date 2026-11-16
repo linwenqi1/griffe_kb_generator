@@ -1,0 +1,3 @@
+[submodule "griffe"]
+	path = griffe
+	url = https://github.com/mkdocstrings/griffe.git
