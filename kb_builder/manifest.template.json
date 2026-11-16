@@ -1,0 +1,9 @@
+[
+  {
+    "package": "<package-name>",
+    "version": "<version>",
+    "import_name": "<import-name>",
+    "source_root": "<path/to/unpacked-source-root>",
+    "search_path": "<path/to/directory-containing-import-name>"
+  }
+]

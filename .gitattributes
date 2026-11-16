@@ -1,0 +1,2 @@
+# Preserve the checked-in source distribution byte-for-byte on all platforms.
+kb_builder/example/** -text whitespace=-trailing-space,-space-before-tab

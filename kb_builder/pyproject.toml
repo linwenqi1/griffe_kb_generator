@@ -1,0 +1,16 @@
+[project]
+name = "griffe-kb-builder"
+version = "0.1.0"
+description = "Build schema-v4 knowledge bases from Python source using the local Griffe submodule"
+requires-python = ">=3.11"
+dependencies = ["griffe"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["kb_builder"]
+
+[tool.uv.sources]
+griffe = { path = "../griffe", editable = true }

@@ -1,0 +1,11 @@
+[
+  {
+    "package": "bokeh",
+    "version": "3.2.2",
+    "import_name": "bokeh",
+    "source_root": "example/bokeh-3.2.2",
+    "search_path": "example/bokeh-3.2.2/src",
+    "source_archive": "example/bokeh-3.2.2.tar.gz",
+    "archive_sha256": "b2959b8524d69ec4e7886bc36407445f0a92e1f19530d3bfc4045236a1b7a6ff"
+  }
+]

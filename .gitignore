@@ -72,3 +72,17 @@ dmypy.json
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local reference copy, uv cache, and generated KBs
+/.source_reference/
+/kb_builder/.uv-cache/
+/kb_builder/experiments/
+
+# Local manifests may contain machine-specific source paths
+/kb_builder/manifest*.json
+!/kb_builder/manifest.example.json
+!/kb_builder/manifest.template.json
+
+# The checked-in example is a complete source distribution, including lib/ and egg-info.
+!/kb_builder/example/
+!/kb_builder/example/**
