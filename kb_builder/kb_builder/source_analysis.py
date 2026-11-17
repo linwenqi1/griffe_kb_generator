@@ -202,7 +202,7 @@ def _source_import_edges(search_path: Path, package: str) -> tuple[
             )
         ]
     else:
-        module_file = search_path / f"{package.replace('.', os.sep)}.py"
+        module_file = search_path.joinpath(*package.split(".")).with_suffix(".py")
         files = [module_file] if module_file.is_file() else []
     edges: list[SourceImportEdge] = []
     errors: list[dict[str, str]] = []
