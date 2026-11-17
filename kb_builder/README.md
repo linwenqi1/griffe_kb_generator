@@ -138,3 +138,98 @@ uv run --locked python -m kb_builder --manifest manifest.example.json --output-d
 每条成功记录生成 `<output-dir>/<package>/<version>/griffe_kb.json.gz`；
 运行记录位于 `<output-dir>/build_manifest.json`。不加 `--no-raw` 时，
 同一版本目录下还会生成 `griffe_raw.json.gz`。工具不生成包级多版本汇总文件。
+
+### `griffe_kb.json.gz` 的格式
+
+该文件是 gzip 压缩的 UTF-8 JSON，解压后只有一行。下面列的是
+用 `manifest.example.json` 生成的 **Bokeh 文件的实际键顺序**；
+为便于看清层级，只省略了列表内容和大部分值：
+
+```text
+griffe_kb.json.gz
+└── JSON
+    ├── metadata
+    │   ├── adapter_schema: 4
+    │   ├── alias_edges                 # 数组，本次有 4729 条
+    │   │   └── [0]: {exposed_fqn, resolved, resolved_fqn, target_fqn}
+    │   ├── allow_inspection
+    │   ├── archive
+    │   ├── archive_sha256
+    │   ├── distribution
+    │   ├── filtered_instance_attribute_count
+    │   ├── filtered_instance_attributes
+    │   ├── filtered_non_runtime_member_count
+    │   ├── filtered_non_runtime_members
+    │   ├── generator: "griffe"        # 在 alias_edges 后面，不在文件开头
+    │   ├── griffe_version
+    │   ├── import_name
+    │   ├── recovered_exposed_fqn_count
+    │   ├── recovered_exposed_fqns
+    │   ├── resolve_aliases
+    │   ├── resolve_external
+    │   ├── return_shape_source
+    │   ├── scope_counts
+    │   ├── search_path
+    │   ├── signature_count: 20165
+    │   ├── skipped_module_alias_descent_count
+    │   ├── skipped_module_alias_descents
+    │   ├── source_import_overlay_edge_count
+    │   ├── source_import_overlay_edges
+    │   ├── source_import_overlay_parse_error_count
+    │   ├── source_import_overlay_parse_errors
+    │   ├── source_root
+    │   ├── unresolved_alias_count
+    │   ├── unresolved_aliases
+    │   ├── unresolved_source_import_edge_count
+    │   └── unresolved_source_import_edges
+    ├── package: "bokeh"
+    ├── schema_version: 4
+    └── versions                       # API 签名从这里开始
+        └── "3.2.2"
+            └── "bokeh.client.util.server_url_for_websocket_url"  # FQN
+                ├── bases
+                ├── callable_kind
+                ├── canonical_fqn
+                ├── fqn
+                ├── instance_result_known
+                ├── line
+                ├── parameters
+                │   └── [0]: {annotation, default, kind, name, required}
+                ├── parameters_known
+                ├── return_annotation
+                ├── return_shape: "value"
+                ├── scope
+                └── source_file
+```
+
+上面并没有把 `generator` 或 `return_shape` 凭空加进文件：前者确实在
+`metadata` 中，只是排在很长的 `alias_edges` 后面；后者位于
+`versions["3.2.2"][FQN]` 中。`source_file` 相对于 manifest 中的
+`search_path`。`build_manifest.json` 是另一个运行记录文件，不是 KB 本体。
+
+### 如何读取和使用
+
+无需先手工解压。Python 的 `gzip.open` 负责解压，`json.load` 将一行 JSON
+解析为字典。把下面的 `kb_path` 改为自己的输出路径：
+
+```python
+import gzip
+import json
+from pathlib import Path
+
+kb_path = Path("<output-dir>/bokeh/3.2.2/griffe_kb.json.gz")
+with gzip.open(kb_path, "rt", encoding="utf-8") as stream:
+    kb = json.load(stream)
+
+print(kb.keys())  # metadata, package, schema_version, versions
+signatures = kb["versions"]["3.2.2"]
+print(len(signatures))  # 此示例为 20165
+fqn = "bokeh.client.util.server_url_for_websocket_url"
+api = signatures[fqn]
+print(api["return_shape"])  # value
+print(json.dumps(api, ensure_ascii=False, indent=2))
+```
+
+查 API 时使用 `versions[版本号][FQN]`；`metadata.alias_edges` 记录别名解析
+过程，不是签名清单。若想查看整份文件的可读排版，可对解析后的 `kb` 使用
+`json.dumps(kb, ensure_ascii=False, indent=2)`；这只改变显示方式，不改变 KB 数据。
